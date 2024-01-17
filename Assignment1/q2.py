@@ -6,6 +6,7 @@ from functions import *
 from sklearn.datasets import fetch_openml
 from statistics import mode
 
+
 mnist = fetch_openml('mnist_784', as_frame=False)
 data = mnist['data']
 labels = mnist['target']
@@ -41,4 +42,31 @@ def test_knn(n: int,k: int) -> float:
     acc = 1 - wrong_cnt/len(test_labels)
     return acc
 
-print(test_knn(1000,10))
+def Q2b():
+    acc_res = test_knn(1000,10)
+
+def Q2c():
+    k_list = []
+    acc_k = []
+    for k_val in range(1,101):
+        k_list.append(k_val)
+        acc_k.append(test_knn(1000,k_val))
+    plt.title("Q2.c")
+    plt.xlabel("k values")
+    plt.ylabel("accuracy")
+    plt.plot(k_list, acc_k, color ="blue")
+    plt.show()
+
+def Q2d():
+    n_list = []
+    acc_n = []
+    for n_val in range(100, 5001, 100):
+        n_list.append(n_val)
+        acc_n.append(test_knn(n_val,1))
+    plt.title("Q2.d")
+    plt.xlabel("n values")
+    plt.ylabel("accuracy")
+    plt.plot(n_list, acc_n, color ="blue")
+    plt.show()
+
+Q2d()
