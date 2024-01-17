@@ -16,6 +16,12 @@ train_labels = labels[idx[:10000]]
 test = data[idx[10000:], :].astype(int)
 test_labels = labels[idx[10000:]]
 
+def main():
+    Q2b()
+    Q2c()
+    Q2d()
+
+# Q2a
 def knn(train_img: np.array,train_labels: np.array, q_image: np.array,k: int) -> int:
     if k > train_img.shape[0]:
         raise ValueError('Invalid k value')
@@ -69,4 +75,5 @@ def Q2d():
     plt.plot(n_list, acc_n, color ="blue")
     plt.show()
 
-Q2d()
+if __name__ == "__main__":
+    main()
