@@ -46,8 +46,29 @@ class Assignment2(object):
             A two dimensional array that contains the average empirical error
             and the average true error for each m in the range accordingly.
         """
-        # TODO: Implement the loop
-        pass
+        M = [m for m in range(m_first, m_last + 1, step)]
+        true_error_avg = []
+        empirical_error_avg = []
+        for m in M:
+            true_error_m = np.zeros(T,dtype=float) 
+            empirical_error_m = np.zeros(T,dtype=float ) 
+            for i in range(T):
+                samples = self.sample_from_D(m)
+                intervals_l, error_cnt = intervals.find_best_interval(samples[:,0], samples[:,1], k)
+                true_error_m[i] = self.calc_true_error(intervals_l)
+                empirical_error_m[i] = error_cnt/m
+            true_error_avg.append(true_error_m.mean())
+            empirical_error_avg.append(empirical_error_m.mean())
+        res = np.column_stack((empirical_error_avg, true_error_avg))
+        plt.plot(M,empirical_error_avg,label = "Emprical errors")
+        plt.plot(M,true_error_avg,label = "True errors")
+        plt.legend()
+        plt.title("Q1.b")
+        plt.show()
+        return res
+
+
+
 
     def experiment_k_range_erm(self, m, k_first, k_last, step):
         """Finds the best hypothesis for k= 1,2,...,10.
@@ -59,8 +80,22 @@ class Assignment2(object):
 
         Returns: The best k value (an integer) according to the ERM algorithm.
         """
-        # TODO: Implement the loop
-        pass
+        true_error = []
+        empirical_error = []
+        K = [k for k in range(k_first, k_last + 1, step)]
+        samples = self.sample_from_D(m)
+        for k in K:
+            intervals_l, error_cnt = intervals.find_best_interval(samples[:,0], samples[:,1], k)
+            true_error.append(self.calc_true_error(intervals_l))
+            empirical_error.append(error_cnt/m)
+        min_index = np.argmin(empirical_error)
+        plt.plot(K,empirical_error,label = "Emprical errors")
+        plt.plot(K,true_error,label = "True errors")
+        plt.legend()
+        plt.title("Q1.c")
+        plt.show()
+        return min_index*step + k_first
+    
 
     def experiment_k_range_srm(self, m, k_first, k_last, step):
         """Run the experiment in (c).
@@ -88,14 +123,45 @@ class Assignment2(object):
     #################################
     # Place for additional methods
 
+    def calc_intersection(self,intervals_list,L,R):
+        """Returns the intersection of the intervals in the given list with [L, R]"""
+        total = 0
+        for interval in intervals_list:
+            a,b = interval[0],interval[1]
+            Li = max(L,a)
+            Ri = min(R,b)
+            if(Li < Ri):
+                total += (Ri-Li)
+        return total
 
-    #################################
+    def calc_true_error(self,h_I_intervals):
+        """Calculate the true error of the hypothesis corresponding to the intervals.
+            We are going to use the low of total expectationin order to do that.
+            (Full explanation in the PDF file.)
+            A = [(0, 0.2), (0.4, 0.6), (0.8, 1)]
+            B = [(0.2, 0.4), (0.6, 0.8)]
+        """
+        expectation = 0
+        for_A, for_B = 0, 0
+        for_A += self.calc_intersection(h_I_intervals,0, 0.2)
+        for_A += self.calc_intersection(h_I_intervals,0.4, 0.6)
+        for_A += self.calc_intersection(h_I_intervals,0.8, 1)
+        expectation += for_A * 0.2
+        expectation += (0.6-for_A) * 0.8
+        for_B += self.calc_intersection(h_I_intervals,0.2, 0.4)
+        for_B += self.calc_intersection(h_I_intervals,0.6, 0.8)
+        expectation += for_B * 0.9
+        expectation += (0.4-for_B) * 0.1
+        return expectation
 
 
 if __name__ == '__main__':
     ass = Assignment2()
+    ''''
     ass.experiment_m_range_erm(10, 100, 5, 3, 100)
+    '''
     ass.experiment_k_range_erm(1500, 1, 10, 1)
+    ''''
     ass.experiment_k_range_srm(1500, 1, 10, 1)
     ass.cross_validation(1500)
-
+    '''
