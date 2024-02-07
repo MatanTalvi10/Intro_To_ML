@@ -119,7 +119,7 @@ class Assignment2(object):
             true_error.append(self.calc_true_error(intervals_l))
             ee = error_cnt/m
             empirical_error.append(ee)
-            pen = self.penalty(k,m, 0.1)
+            pen = self.penalty(k,m)
             penalties.append(pen)
             sum_empirical_error_penalty.append(ee+pen)
         min_index = np.argmin(sum_empirical_error_penalty)
@@ -184,11 +184,7 @@ class Assignment2(object):
 
 if __name__ == '__main__':
     ass = Assignment2()
-    ''''
-    ass.experiment_m_range_erm(10, 100, 5, 3, 100)
-    '''
-    ass.experiment_k_range_erm(1500, 1, 10, 1)
-    ''''
+    #ass.experiment_m_range_erm(10, 100, 5, 3, 100)
+    #ass.experiment_k_range_erm(1500, 1, 10, 1)
     ass.experiment_k_range_srm(1500, 1, 10, 1)
-    ass.cross_validation(1500)
-    '''
+    #ass.cross_validation(1500)
