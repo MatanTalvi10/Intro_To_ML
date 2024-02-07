@@ -1,5 +1,5 @@
 #################################
-# Your name:
+# Your name: Matan Talvi
 #################################
 
 import numpy as np
@@ -20,9 +20,17 @@ class Assignment2(object):
         Returns: np.ndarray of shape (m,2) :
                 A two dimensional array of size m that contains the pairs where drawn from the distribution P.
         """
-        # TODO: Implement me
-        pass
-
+        X = np.random.uniform(0,1,m)
+        X.sort()
+        Y = np.zeros((m,), dtype=int)
+        for i in range(m):
+            if(X[i]<=0.2 or (X[i]<=0.6 and X[i]>=0.4) or X[i]>=0.8):
+                y = np.random.choice([0,1],size = 1,p=[0.2, 0.8])
+            else:
+                y = np.random.choice([0,1],size = 1,p=[0.9, 0.1])
+            Y[i] = y
+        res = np.column_stack((X, Y))
+        return res
 
     def experiment_m_range_erm(self, m_first, m_last, step, k, T):
         """Runs the ERM algorithm.
