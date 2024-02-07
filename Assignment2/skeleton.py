@@ -5,7 +5,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import intervals
-
+import math
 
 class Assignment2(object):
     """Assignment 2 skeleton.
@@ -108,8 +108,29 @@ class Assignment2(object):
 
         Returns: The best k value (an integer) according to the SRM algorithm.
         """
-        # TODO: Implement the loop
-        pass
+        true_error = []
+        empirical_error = []
+        penalties = []
+        sum_empirical_error_penalty = []
+        K = [k for k in range(k_first, k_last + 1, step)]
+        samples = self.sample_from_D(m)
+        for k in K:
+            intervals_l, error_cnt = intervals.find_best_interval(samples[:,0], samples[:,1], k)
+            true_error.append(self.calc_true_error(intervals_l))
+            ee = error_cnt/m
+            empirical_error.append(ee)
+            pen = self.penalty(k,m, 0.1)
+            penalties.append(pen)
+            sum_empirical_error_penalty.append(ee+pen)
+        min_index = np.argmin(sum_empirical_error_penalty)
+        plt.plot(K,empirical_error,label = "Emprical errors")
+        plt.plot(K,true_error,label = "True errors")
+        plt.plot(K,penalties,label = "penalties")
+        plt.plot(K,sum_empirical_error_penalty,label = "Empirical errors + Penalties")
+        plt.legend()
+        plt.title("Q1.d")
+        plt.show()
+        return min_index*step + k_first
 
     def cross_validation(self, m):
         """Finds a k that gives a good test error.
@@ -153,6 +174,12 @@ class Assignment2(object):
         expectation += for_B * 0.9
         expectation += (0.4-for_B) * 0.1
         return expectation
+
+    def penalty(self,k,m):
+        delta = 0.1
+        vcdim = 2*k
+        temp_1 = math.log(2 / delta)
+        return 2*(math.sqrt((vcdim+temp_1)/m))
 
 
 if __name__ == '__main__':
