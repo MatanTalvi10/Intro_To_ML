@@ -180,11 +180,28 @@ class Assignment2(object):
         vcdim = 2*k
         temp_1 = math.log(2 / delta)
         return 2*(math.sqrt((vcdim+temp_1)/m))
+    
+    def zero_one_loss(self,intervals_list,x,y):
+        """" Calculates if delta(h(x),y)) is 0 or 1"""
+        h_x = 0
+        for interval in intervals_list:
+            if interval[0] <= x <= interval[1]:
+                h_x = 1
+                break
+        if h_x == y:
+            return 0
+        else:
+            return 1
+        
+    def calc_empirical_error(self,intervals_list,samples):
+        """Calculates the emprical error given h as the intervals list and samples in the form
+           of a two dimensional np.array that contains samples drawn from the distribution P"""
+        return sum([self.zero_one_loss(intervals_list, x, y) for x, y in samples]) / len(samples)
 
 
 if __name__ == '__main__':
     ass = Assignment2()
     #ass.experiment_m_range_erm(10, 100, 5, 3, 100)
     #ass.experiment_k_range_erm(1500, 1, 10, 1)
-    ass.experiment_k_range_srm(1500, 1, 10, 1)
-    #ass.cross_validation(1500)
+    #ass.experiment_k_range_srm(1500, 1, 10, 1)
+    ass.cross_validation(1500)

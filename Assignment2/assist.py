@@ -10,3 +10,7 @@ res = skeleton.Assignment2.sample_from_D(ass,10)
 print(res)
 for_A, for_B = 0,0
 print(for_B)
+x = np.array([[1, 2,4], [3, 4,6]])
+print(x)
+print(np.shape(x))
+print(len(x))
