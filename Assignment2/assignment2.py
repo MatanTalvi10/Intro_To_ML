@@ -138,8 +138,17 @@ class Assignment2(object):
 
         Returns: The best k value (an integer) found by the cross validation algorithm.
         """
-        # TODO: Implement me
-        pass
+        samples = self.sample_from_D(m)
+        np.random.shuffle(samples)
+        s1 = samples[:int(m * 0.8)]
+        s2 = samples[int(m * 0.8):]
+        s1 = s1[s1[:, 0].argsort()]
+        best_h_list = [intervals.find_best_interval(s1[:, 0], s1[:, 1], k)[0] for k in range(1, 11)]
+        empirical_errors_s2 = np.array([self.calculate_empirical_error(s2, h) for h in best_h_list])
+        tmp = np.argmin(empirical_errors_s2)
+        print(best_h_list[tmp])
+        print(tmp+1)
+        return tmp + 1
 
     #################################
     # Place for additional methods
@@ -155,53 +164,26 @@ class Assignment2(object):
                 total += (Ri-Li)
         return total
 
-    def calc_true_error(self,h_I_intervals):
-        """Calculate the true error of the hypothesis corresponding to the intervals.
-            We are going to use the low of total expectationin order to do that.
-            (Full explanation in the PDF file.)
-            A = [(0, 0.2), (0.4, 0.6), (0.8, 1)]
-            B = [(0.2, 0.4), (0.6, 0.8)]
-        """
-        expectation = 0
-        for_A, for_B = 0, 0
-        for_A += self.calc_intersection(h_I_intervals,0, 0.2)
-        for_A += self.calc_intersection(h_I_intervals,0.4, 0.6)
-        for_A += self.calc_intersection(h_I_intervals,0.8, 1)
-        expectation += for_A * 0.2
-        expectation += (0.6-for_A) * 0.8
-        for_B += self.calc_intersection(h_I_intervals,0.2, 0.4)
-        for_B += self.calc_intersection(h_I_intervals,0.6, 0.8)
-        expectation += for_B * 0.9
-        expectation += (0.4-for_B) * 0.1
-        return expectation
 
-    def penalty(self,k,m):
-        delta = 0.1
-        vcdim = 2*k
-        temp_1 = math.log(2 / delta)
-        return 2*(math.sqrt((vcdim+temp_1)/m))
-    
-    def zero_one_loss(self,intervals_list,x,y):
+    def zero_one_loss(self, intervals_list, x, y):
         """" Calculates if delta(h(x),y)) is 0 or 1"""
         h_x = 0
         for interval in intervals_list:
             if interval[0] <= x <= interval[1]:
                 h_x = 1
-                break
-        if h_x == y:
+                break        
+        if (h_x and y == 1) or (not h_x and y == 0):
             return 0
-        else:
-            return 1
-        
-    def calc_empirical_error(self,intervals_list,samples):
+        return 1
+
+    def calculate_empirical_error(self, sample, intervals_list):
         """Calculates the emprical error given h as the intervals list and samples in the form
            of a two dimensional np.array that contains samples drawn from the distribution P"""
-        return sum([self.zero_one_loss(intervals_list, x, y) for x, y in samples]) / len(samples)
-
+        return sum([self.zero_one_loss(intervals_list, x, y) for x, y in sample]) / len(sample)    
 
 if __name__ == '__main__':
     ass = Assignment2()
-    #ass.experiment_m_range_erm(10, 100, 5, 3, 100)
-    #ass.experiment_k_range_erm(1500, 1, 10, 1)
-    #ass.experiment_k_range_srm(1500, 1, 10, 1)
+    ass.experiment_m_range_erm(10, 100, 5, 3, 100)
+    ass.experiment_k_range_erm(1500, 1, 10, 1)
+    ass.experiment_k_range_srm(1500, 1, 10, 1)
     ass.cross_validation(1500)
