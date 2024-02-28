@@ -124,16 +124,6 @@ def q1_d(eta_0, C):
     return accuracy_calc(test_data, test_labels, w)
 
 
-def hinge_loss_LReg(w,x,y,C=1):
-    """Computes the Hinge loss withL2-regularization."""
-    in_prod = np.inner(w,x)
-    norm_2 = (l2.norm(w))**2
-    res = 0
-    tmp = 1-y*in_prod + 0.5*(norm_2)
-    if tmp > res:
-        res = C*tmp
-    return res
-
 def accuracy_calc(data,labels,w):
     """Computes the accuracy (correct labales/total data) given a vector w."""
     size_data = data.shape[0]
