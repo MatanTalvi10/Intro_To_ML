@@ -9,6 +9,7 @@ from sklearn.datasets import fetch_openml
 import sklearn.preprocessing
 from numpy import linalg as l2
 import matplotlib.pyplot as plt
+import scipy
 
 """
 Please use the provided function signature for the SGD implementation.
@@ -66,8 +67,15 @@ def SGD_log(data, labels, eta_0, T):
     """
     Implements SGD for log loss.
     """
-    # TODO: Implement me
-    pass
+    sample_size = data.shape[0]
+    sample_info = data.shape[1]
+    w = np.zeros(sample_info)
+    for t in range(1, T + 1):
+        w = w.reshape(sample_info, )
+        i = np.random.randint(0, sample_size, 1)[0]
+        gradient_w_fi = log_loss_gradient_calc(w, data[i], labels[i])
+        w = np.add(w, (eta_0 / t) * (np.dot(gradient_w_fi, data[i])))
+    return w
 
 #################################
 
@@ -104,7 +112,6 @@ def q1_b(eta0):
             w = SGD_hinge(train_data, train_labels, c, eta0, 1000)
             sum_acc += accuracy_calc(validation_data, validation_labels, w)
         c_accuracy.append(sum_acc/10)
-    print(c_list[np.argmax(c_accuracy)])
     plt.title("acc of SGD_Hinge loss per C")
     plt.xlabel('C')
     plt.ylabel('average acc')
@@ -123,6 +130,62 @@ def q1_d(eta_0, C):
     w = SGD_hinge(train_data, train_labels, C, eta_0, T)
     return accuracy_calc(test_data, test_labels, w)
 
+def q2_a():
+    T = 1000
+    C = 1
+    etas = [10 ** i for i in range(-5, 4)] 
+    etas_accuracy = []
+    for eta0 in etas:
+        sum_acc = 0
+        for i in range(10):
+            w = SGD_log(train_data, train_labels,eta0, 1000)
+            sum_acc += accuracy_calc(validation_data, validation_labels, w)
+        etas_accuracy.append(sum_acc/10)
+        plt.title("accuracy of SGD_Log loss per eta_0")
+    plt.xlabel('eta_0')
+    plt.ylabel('average acc')
+    plt.xscale('log')
+    plt.plot(etas, etas_accuracy, marker='o')
+    plt.show()
+    return etas[np.argmax(etas_accuracy)]
+
+def q2_b(train_data, train_labels, eta_0):
+    T = 20000
+    w = SGD_log(train_data, train_labels, eta_0, T)
+    plt.imshow(np.reshape(w, (28, 28)), interpolation='nearest')
+    plt.show()
+    return accuracy_calc(train_data, train_labels, w)
+
+def q2_c(train_data, train_labels, eta_0):
+    T = 20000
+    w_norms = norm_iterations(train_data, train_labels, eta_0, T)
+    iterates = np.arange(1, 20001)
+    plt.plot(iterates, w_norms)
+    plt.xlabel('iteration')
+    plt.ylabel('norm(w)')
+    plt.show()
+
+def norm_iterations(data, labels, eta_0, T):
+    """
+    Calculate w norm for each of T iterates
+    """
+    w = np.zeros(784)  
+    w_norms = np.zeros(T+1)
+    for t in range(1, T + 1):
+        i = np.random.randint(data.shape[0]) 
+        y = labels[i]
+        x = data[i]
+        exp = (-y * x) * scipy.special.softmax(-y * np.dot(w, x))
+        eta = eta_0 / t
+        w = w - (eta * exp)
+        w_norms[t] = np.linalg.norm(w)
+    return w_norms[1:]
+
+
+def log_loss_gradient_calc(w, x, y):
+    exp = scipy.special.softmax(-y * np.dot(w, x))
+    return (exp * ((-y)) / (1 + exp)) * x
+
 
 def accuracy_calc(data,labels,w):
     """Computes the accuracy (correct labales/total data) given a vector w."""
@@ -136,9 +199,13 @@ def accuracy_calc(data,labels,w):
     return cnt/size_data 
         
 
-
-train_data, train_labels, validation_data, validation_labels, test_data, test_labels = helper()
-best_eta = q1_a()
-best_c = q1_b(best_eta)
-q1_c(best_eta,best_c)
-our_accuracy = q1_d(best_eta,best_c)
+if __name__ == '__main__':
+    train_data, train_labels, validation_data, validation_labels, test_data, test_labels = helper()
+    best_eta = q1_a()
+    best_c = q1_b(best_eta)
+    q1_c(best_eta,best_c)
+    our_accuracy = q1_d(best_eta,best_c)
+    best_eta_2 = q2_a()
+    q2_b(train_data,train_labels,best_eta_2)
+    q2_c(train_data,train_labels,1e-05)
+    
